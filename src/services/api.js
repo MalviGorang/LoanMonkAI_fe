@@ -179,17 +179,34 @@ export const matchVendors = async (profile) => {
  */
 export const generateDocumentList = async (profile) => {
   try {
-    // Transform profile to match backend expectations
     const transformedProfile = transformProfileForBackend(profile);
-    
-    const response = await api.post('/api/documents/generate', transformedProfile);
-    return response.data;
+    if (transformedProfile.co_applicant_details) {
+      transformedProfile.co_applicant_details.co_applicant_existing_loan_amount = {
+        amount: 0,
+        currency: "INR"
+      };
+      transformedProfile.co_applicant_details.co_applicant_existing_loan_emi_amount = {
+        amount: 0,
+        currency: "INR"
+      };
+    }
+
+    // Make the API call with a custom responseType to handle plain text
+    const response = await api.post('/api/documents/generate', transformedProfile, {
+      responseType: 'text' // Tell axios to treat the response as plain text
+    });
+
+    // Split the plain text response into an array of lines
+    const documentList = response.data.split('\n').filter(line => line.trim() !== '');
+    console.log('Parsed document list:', documentList);
+
+    // Return as an object with document_list field to match frontend expectation
+    return { document_list: documentList };
   } catch (error) {
     console.error('Error generating document list:', error);
-    return { document_list: "Failed to generate document list: " + error.message };
+    throw error;
   }
 };
-
 /**
  * Get pre-signed URL for document upload
  */

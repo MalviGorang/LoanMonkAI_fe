@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/api';
 
 // Create API client with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_URL || 'https://loanmonkl-render-be.onrender.com',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -129,12 +129,10 @@ export const fetchUniversities = async (country = '') => {
  */
 export const fetchCourses = async ({ course_type }) => {
   try {
-    const params = new URLSearchParams();
-    if (course_type) params.append('course_type', course_type);
-    
-    const response = await fetch(`${API_BASE_URL}/courses?${params}`);
-    if (!response.ok) throw new Error('Failed to fetch courses');
-    return await response.json();
+    const response = await api.get('/api/courses', {
+      params: { course_type }
+    });
+    return response.data || [];
   } catch (error) {
     console.error('Error fetching courses:', error);
     return [];

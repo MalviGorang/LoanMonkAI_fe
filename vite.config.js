@@ -7,7 +7,7 @@ export default defineConfig({
   ],
   server: {
     port: 5174,
-    strictPort: true,
+    strictPort: false,
     host: true, // Add this to handle connections better
     proxy: {
       "/api": {

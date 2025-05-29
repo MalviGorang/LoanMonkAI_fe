@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/api';
 
 // Create API client with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
+  baseURL: import.meta.env.VITE_API_URL || API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { VStack } from '@chakra-ui/react';
+import React, { useState, useEffect } from 'react';
+import { VStack, Alert, AlertIcon, AlertDescription } from '@chakra-ui/react';
 import { useStore } from '../../store/store';
 import { BaseModal, QuestionField } from '../shared';
 import { saveStudentProfile, matchVendors, generateDocumentList } from '../../services/api';
@@ -18,6 +18,7 @@ const IdentificationModal = () => {
   } = useStore();
   
   const [errors, setErrors] = useState({});
+  const [duplicateIdError, setDuplicateIdError] = useState(null);
 
   const fields = [
     'pan',
@@ -25,6 +26,32 @@ const IdentificationModal = () => {
     'co_applicant_pan',
     'co_applicant_aadhaar'
   ];
+
+  // Check for duplicate identification documents
+  useEffect(() => {
+    const studentPan = studentProfile.loan_details?.pan;
+    const studentAadhaar = studentProfile.loan_details?.aadhaar;
+    const coApplicantPan = studentProfile.loan_details?.co_applicant_pan;
+    const coApplicantAadhaar = studentProfile.loan_details?.co_applicant_aadhaar;
+    
+    // Clean Aadhaar numbers (remove spaces)
+    const cleanStudentAadhaar = studentAadhaar ? studentAadhaar.replace(/\s/g, '') : '';
+    const cleanCoApplicantAadhaar = coApplicantAadhaar ? coApplicantAadhaar.replace(/\s/g, '') : '';
+    
+    // Only validate if both fields have values
+    if (studentPan && coApplicantPan && studentPan === coApplicantPan) {
+      setDuplicateIdError('Student and co-applicant cannot have the same PAN number');
+    } else if (cleanStudentAadhaar && cleanCoApplicantAadhaar && cleanStudentAadhaar === cleanCoApplicantAadhaar) {
+      setDuplicateIdError('Student and co-applicant cannot have the same Aadhaar number');
+    } else {
+      setDuplicateIdError(null);
+    }
+  }, [
+    studentProfile.loan_details?.pan, 
+    studentProfile.loan_details?.aadhaar, 
+    studentProfile.loan_details?.co_applicant_pan, 
+    studentProfile.loan_details?.co_applicant_aadhaar
+  ]);
 
   // Handle field change
   const handleFieldChange = (field, value) => {
@@ -41,6 +68,12 @@ const IdentificationModal = () => {
   };
 
   const handleSubmit = async () => {
+    // Check for duplicate identification documents
+    if (duplicateIdError) {
+      setError(duplicateIdError);
+      return;
+    }
+    
     setLoading(true);
     setError(null);
 
@@ -101,10 +134,17 @@ const IdentificationModal = () => {
       title="Identification Details" 
       onSubmit={handleSubmit}
       onBack={goBack}
-      isValid={true}
+      isValid={!duplicateIdError} // Disable submit button if there's a duplicate ID error
       submitText="Submit Application"
     >
       <VStack spacing={6}>
+        {duplicateIdError && (
+          <Alert status="error" borderRadius="md">
+            <AlertIcon />
+            <AlertDescription>{duplicateIdError}</AlertDescription>
+          </Alert>
+        )}
+        
         {fields.map(fieldKey => (
           <QuestionField
             key={fieldKey}

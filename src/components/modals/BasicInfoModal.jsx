@@ -3,6 +3,7 @@ import { VStack, Text, Box } from '@chakra-ui/react';
 import { useStore } from '../../store/store';
 import { BaseModal, QuestionField } from '../shared';
 import { fetchPincodeDetails } from '../../services/api';
+import { refreshStorageExpiration } from '../../utils/storageCleanup';
 
 const BasicInfoModal = () => {
   const { studentProfile, updateProfile, setCurrentModal, setLoading } = useStore();
@@ -10,6 +11,11 @@ const BasicInfoModal = () => {
   const [locationInfo, setLocationInfo] = useState({ city: '', state: '' });
 
   const fields = ['name', 'mobile_number', 'email', 'date_of_birth', 'current_location_pincode'];
+
+  // Log persistence status on mount
+  useEffect(() => {
+    console.log('BasicInfoModal mounted with data:', studentProfile.basic_info);
+  }, []);
 
   // Effect to fetch city and state when pincode changes
   useEffect(() => {
@@ -49,6 +55,9 @@ const BasicInfoModal = () => {
   };
 
   const handleSubmit = () => {
+    // Refresh the 24-hour expiration time
+    refreshStorageExpiration();
+    
     // Always allow proceeding to next step
     setCurrentModal('education');
   };

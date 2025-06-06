@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
+import { createCustomStorage } from '../utils/storage';
 
 const modalOrder = ['basic_info', 'education', 'study_plan', 'tests', 'collateral', 'identification', 'dashboard'];
 
@@ -124,6 +125,7 @@ export const useStore = create(
       }),
       {
         name: 'loan-assistant-storage',
+        storage: createCustomStorage(),
         partialize: (state) => ({
           studentProfile: state.studentProfile,
           vendorMatches: state.vendorMatches,

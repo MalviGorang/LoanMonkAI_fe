@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useCallback } from 'react';
 import {
   Modal,
   ModalOverlay,
@@ -17,10 +17,34 @@ const BaseModal = ({
   title, 
   children, 
   onSubmit, 
+  onBack,
   submitText = 'Next', 
-  isValid = true 
+  isValid = true,
+  backText = 'Back'
 }) => {
   const { isLoading } = useStore();
+  
+  // Handle keyboard events
+  const handleKeyDown = useCallback((event) => {
+    // Submit form on Enter key if valid and not loading
+    if (event.key === 'Enter' && isValid && !isLoading) {
+      onSubmit();
+    }
+    // Go back on Escape key if onBack function is provided
+    else if (event.key === 'Escape' && onBack) {
+      onBack();
+    }
+  }, [onSubmit, onBack, isValid, isLoading]);
+  
+  // Add and remove global keyboard event listener
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyDown);
+    
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleKeyDown]);
 
   return (
     <Modal 

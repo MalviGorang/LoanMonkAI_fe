@@ -1,4 +1,4 @@
-export const CURRENCY_OPTIONS = ['INR', 'USD', 'CAD', 'GBP', 'EUR'];
+export const CURRENCY_OPTIONS = ['INR', 'USD'];
 
 // Country options with exact names as per backend requirements
 export const COUNTRY_OPTIONS = [
@@ -205,7 +205,7 @@ export const QUESTION_DETAILS = {
     type: 'amount_currency',
     text: "What's your yearly income?",
     helperText: 'Enter your annual income',
-    condition: "current_profession in ['Employed','Self-Employed']",
+    condition: "current_profession == 'Employed' || current_profession == 'Self-Employed'",
     validate: (value) => {
       if (!value?.amount) return 'Income amount is required';
       if (!value?.currency) return 'Currency is required';
@@ -254,7 +254,7 @@ export const QUESTION_DETAILS = {
     type: 'choice',
     text: 'Which degree will you pursue?',
     helperText: 'Select the degree you plan to study',
-    options: ['Masters', 'Bachelors', 'PgDiploma'],
+    options: ['Bachelors','Masters','PgDiploma'],
     validate: (value) => !value ? 'Degree is required' : null
   },
   specific_course_name: {
@@ -267,7 +267,7 @@ export const QUESTION_DETAILS = {
     type: 'choice',
     text: 'Which intake are you aiming for?',
     helperText: 'Select your target admission season',
-    options: ['Spring', 'Fall', 'Summer', 'Winter'],
+    options: ['Fall', 'Spring', 'Summer','Other'],
     validate: (value) => !value ? 'Target intake is required' : null
   },
   course_duration: {
@@ -485,6 +485,14 @@ export const QUESTION_DETAILS = {
     type: 'choice',
     text: 'Does your co-applicant own a house?',
     helperText: 'Select yes if co-applicant owns a residential property',
+    condition: "co_applicant_available == 'Yes'",
+    options: ['Yes', 'No'],
+    validate: (value) => !value ? 'Please select yes or no' : null
+  },
+  co_applicant_maintains_average_balance: {
+    type: 'choice',
+    text: 'Does your co-applicant maintain average balance in bank account?',
+    helperText: 'Select yes if co-applicant maintains minimum required balance',
     condition: "co_applicant_available == 'Yes'",
     options: ['Yes', 'No'],
     validate: (value) => !value ? 'Please select yes or no' : null
